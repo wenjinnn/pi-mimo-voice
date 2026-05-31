@@ -22,12 +22,15 @@ https://github.com/user-attachments/assets/9a9f9984-9476-4c4e-bbeb-ae088a7d875c
 ## Installation
 
 ```bash
-# Install as pi extension
-cd ~/.pi/agent/extensions
-git clone <this-repo> pi-mimo-voice
+# Install from npm
+pi install npm:@wenjinnn/pi-mimo-voice
 
-# Or install from npm (when published)
-npx pi-package install pi-mimo-voice
+# Or install from GitHub
+pi install git:github.com/wenjinnn/pi-mimo-voice
+
+# Or clone manually
+cd ~/.pi/agent/extensions
+git clone https://github.com/wenjinnn/pi-mimo-voice.git
 ```
 
 ## Quick Start
@@ -66,7 +69,7 @@ export XIAOMI_TOKEN_PLAN_CN_API_KEY="your-key"  # China region
 
 | Command | Description |
 |---------|-------------|
-| `/auto-speak` | Toggle auto-speak (read all assistant replies) |
+| `/auto-speak` | Toggle auto-speak (read all assistant replies). Use `/auto-speak on\|off` for explicit control |
 | `/live` | Start/stop live voice mode (auto-speak ON, begins recording) |
 | `/live reply` | Stop recording, transcribe, and send to LLM |
 

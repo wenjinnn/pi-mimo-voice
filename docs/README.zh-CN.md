@@ -1,6 +1,6 @@
 # pi-mimo-voice
 
-> 🇬🇳 [English](README.md)
+> 🇬🇳 [English](../README.md)
 
 为 [pi](https://github.com/earendil-works/pi-coding-agent) 提供语音输入 (STT) 和输出 (TTS)，由小米 MiMo V2.5 API 驱动。
 
@@ -22,12 +22,15 @@ https://github.com/user-attachments/assets/9a9f9984-9476-4c4e-bbeb-ae088a7d875c
 ## 安装
 
 ```bash
-# 作为 pi 扩展安装
-cd ~/.pi/agent/extensions
-git clone <this-repo> pi-mimo-voice
+# 从 npm 安装
+pi install npm:@wenjinnn/pi-mimo-voice
 
-# 或从 npm 安装（发布后）
-npx pi-package install pi-mimo-voice
+# 或从 GitHub 安装
+pi install git:github.com/wenjinnn/pi-mimo-voice
+
+# 或手动克隆
+cd ~/.pi/agent/extensions
+git clone https://github.com/wenjinnn/pi-mimo-voice.git
 ```
 
 ## 快速开始
@@ -66,7 +69,7 @@ export XIAOMI_TOKEN_PLAN_CN_API_KEY="your-key"  # 中国区域
 
 | 命令 | 说明 |
 |------|------|
-| `/auto-speak` | 切换自动朗读（朗读所有助手回复） |
+| `/auto-speak` | 切换自动朗读（朗读所有助手回复）。使用 `/auto-speak on|off` 显式控制 |
 | `/live` | 开启/关闭连续语音模式（自动朗读+开始录音） |
 | `/live reply` | 停止录音、转写、发送给 LLM |
 
