@@ -1,6 +1,6 @@
 # pi-mimo-voice
 
-> 🇨🇳 [中文文档](README.zh-CN.md)
+> 🇨🇳 [中文文档](docs/README.zh-CN.md)
 
 Voice input (STT) and output (TTS) for [pi](https://github.com/earendil-works/pi-coding-agent) powered by Xiaomi MiMo V2.5 API.
 
