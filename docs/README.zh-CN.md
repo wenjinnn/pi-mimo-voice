@@ -164,9 +164,31 @@ export XIAOMI_TOKEN_PLAN_CN_API_KEY="your-key"
 ## 系统要求
 
 - **Node.js** ≥ 18
-- **PulseAudio** — 用于录音（`parecord`）
-- **音频播放器** — 任一：`paplay`、`aplay`、`ffplay`、`mpv`
 - **MiMo API 密钥** — 通过 `pi /login` 或环境变量配置（见 [API 配置](#api-配置)）
+- **ffmpeg** — 用于录音和播放（跨平台）
+
+### 平台音频工具
+
+| 平台 | 录音 | 播放（优先级顺序） |
+|------|------|-------------------|
+| **Linux** | `parecord` (PulseAudio) → ffmpeg | `paplay` → `aplay` → `ffplay` → `mpv` |
+| **macOS** | ffmpeg + avfoundation | `afplay`（系统自带） → `ffplay` → `mpv` |
+| **Windows** | ffmpeg + dshow | `ffplay` → `mpv` |
+
+**Linux：** 推荐使用 PulseAudio（`parecord`/`paplay`），ALSA（`aplay`）也可用于播放。
+
+**macOS：** 无需额外工具 — `afplay` 系统自带，ffmpeg 通过 avfoundation 处理录音。
+
+**Windows：** 安装 [ffmpeg](https://ffmpeg.org/download.html) 并确保在 PATH 中。默认录音设备为 `audio=麦克风`，可通过 `MIC_DEVICE` 环境变量覆盖。
+
+> ⚠️ **跨平台说明：** macOS 和 Windows 支持基于 ffmpeg 的平台音频后端（avfoundation/dshow），但**尚未在实际硬件上充分测试**。Linux 是主要测试平台。如果你在 macOS 或 Windows 上遇到问题，请[提交 issue](https://github.com/wenjinnn/pi-mimo-voice/issues) — 非常欢迎反馈和贡献！
+
+### 环境变量
+
+| 变量 | 说明 |
+|------|------|
+| `MIC_DEVICE` | 覆盖录音设备（所有平台） |
+| `WHISPER_MODEL` | whisper.cpp 模型文件路径 |
 
 ### npm 依赖
 
@@ -193,7 +215,7 @@ export XIAOMI_TOKEN_PLAN_CN_API_KEY="your-key"
 ### STT 流程
 
 ```
-麦克风 → parecord → WAV 文件 → whisper.cpp 或 MiMo API → 文字
+麦克风 → parecord/ffmpeg → WAV 文件 → whisper.cpp 或 MiMo API → 文字
 ```
 
 ### 连续对话流程
@@ -205,6 +227,16 @@ export XIAOMI_TOKEN_PLAN_CN_API_KEY="your-key"
 LLM 回复 → 自动朗读回复
 自动开始下一轮录音
 ```
+
+## 反馈与贡献
+
+本项目持续维护中。如有问题、建议或功能需求：
+
+- 🐛 [提交 issue](https://github.com/wenjinnn/pi-mimo-voice/issues)
+- 🔀 [提交 Pull Request](https://github.com/wenjinnn/pi-mimo-voice/pulls)
+- 💬 分享你的使用体验和建议
+
+欢迎任何形式的贡献！
 
 ## 许可证
 

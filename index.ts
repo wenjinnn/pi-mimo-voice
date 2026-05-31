@@ -23,6 +23,8 @@ import { randomUUID } from "node:crypto";
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
+const PLATFORM = process.platform; // 'linux' | 'darwin' | 'win32'
+
 const MIMO_API_URLS: Record<string, string> = {
   "xiaomi-token-plan-cn": "https://token-plan-cn.xiaomimimo.com/v1",
   "xiaomi-token-plan-ams": "https://token-plan-ams.xiaomimimo.com/v1",
@@ -90,8 +92,8 @@ async function startRecording(
   _recordingFile = outFile;
   _recordingStartedAt = Date.now();
 
-  // Use parecord (reliable on PulseAudio)
-  if (cmdExists("parecord")) {
+  // Linux: prefer parecord (more reliable with PulseAudio)
+  if (PLATFORM === "linux" && cmdExists("parecord")) {
     return new Promise((resolve, reject) => {
       const proc = spawn("parecord", [
         "--file-format=wav", "--channels=1", "--rate=16000", "--format=s16le", outFile,
@@ -118,12 +120,10 @@ async function startRecording(
     });
   }
 
-  // Fallback: ffmpeg without silencedetect
+  // All platforms: ffmpeg with platform-specific audio input
+  const ffmpegArgs = ["-y", ...getFfmpegRecordArgs(outFile), "-f", "wav", outFile];
   return new Promise((resolve, reject) => {
-    const proc = spawn("ffmpeg", [
-      "-y", "-f", "pulse", "-i", "default",
-      "-f", "wav", "-ar", "16000", "-ac", "1", outFile,
-    ], { stdio: ["ignore", "ignore", "ignore"] });
+    const proc = spawn("ffmpeg", ffmpegArgs, { stdio: ["ignore", "ignore", "ignore"] });
     _recordingProc = proc;
     let done = false;
     const finish = async () => {
@@ -134,6 +134,8 @@ async function startRecording(
       if (_recordingTimer) { clearTimeout(_recordingTimer); _recordingTimer = null; }
       if (!_recordingCancelled) {
         await onFinish(outFile);
+      } else {
+        await unlink(outFile).catch(() => {});
       }
       _recordingCancelled = false;
       resolve();
@@ -263,10 +265,29 @@ async function tmpFile(ext: string): Promise<string> {
 
 function cmdExists(cmd: string): boolean {
   try {
-    execSync(`which ${cmd}`, { stdio: "ignore" });
+    const checkCmd = PLATFORM === "win32" ? "where" : "which";
+    execSync(`${checkCmd} ${cmd}`, { stdio: "ignore" });
     return true;
   } catch {
     return false;
+  }
+}
+
+function getFfmpegRecordArgs(outputFile: string): string[] {
+  const rate = "16000";
+  const channels = "1";
+  switch (PLATFORM) {
+    case "darwin": {
+      const device = process.env.MIC_DEVICE || ":0";
+      return ["-f", "avfoundation", "-i", device, "-ar", rate, "-ac", channels];
+    }
+    case "win32": {
+      const device = process.env.MIC_DEVICE || "audio=麦克风";
+      return ["-f", "dshow", "-i", device, "-ar", rate, "-ac", channels];
+    }
+    default: {
+      return ["-f", "pulse", "-i", "default", "-ar", rate, "-ac", channels];
+    }
   }
 }
 
@@ -357,12 +378,24 @@ async function callMimoTTS(text: string, styleInstruction?: string): Promise<Buf
 }
 
 async function playAudio(filePath: string): Promise<void> {
-  const players = [
-    { cmd: "paplay", args: [filePath] },
-    { cmd: "aplay", args: [filePath] },
-    { cmd: "ffplay", args: ["-nodisp", "-autoexit", "-loglevel", "quiet", filePath] },
-    { cmd: "mpv", args: ["--no-video", "--really-quiet", filePath] },
-  ];
+  // Platform-specific player priority
+  const players: Array<{cmd: string, args: string[]}> = [];
+
+  if (PLATFORM === "darwin") {
+    // macOS: afplay is built-in, most reliable
+    players.push({ cmd: "afplay", args: [filePath] });
+  }
+
+  if (PLATFORM === "linux") {
+    // Linux: paplay/aplay preferred
+    players.push({ cmd: "paplay", args: [filePath] });
+    players.push({ cmd: "aplay", args: [filePath] });
+  }
+
+  // Cross-platform fallbacks
+  players.push({ cmd: "ffplay", args: ["-nodisp", "-autoexit", "-loglevel", "quiet", filePath] });
+  players.push({ cmd: "mpv", args: ["--no-video", "--really-quiet", filePath] });
+
   for (const p of players) {
     if (cmdExists(p.cmd)) {
       return new Promise((resolve, reject) => {
@@ -379,7 +412,7 @@ async function playAudio(filePath: string): Promise<void> {
       });
     }
   }
-  throw new Error("No audio player found. Install paplay, aplay, ffplay, or mpv.");
+  throw new Error("No audio player found. Install ffmpeg (ffplay) or mpv.");
 }
 
 /** Stop currently playing audio */
@@ -399,7 +432,8 @@ function stopAudio(): void {
 async function recordAudio(durationMs: number = 10000): Promise<string> {
   const outFile = await tmpFile(".wav");
 
-  if (cmdExists("parecord")) {
+  // Linux: prefer parecord
+  if (PLATFORM === "linux" && cmdExists("parecord")) {
     return new Promise((resolve, reject) => {
       const child = spawn("parecord", [
         "--file-format=wav", "--channels=1", "--rate=16000", "--format=s16le", outFile,
@@ -410,16 +444,14 @@ async function recordAudio(durationMs: number = 10000): Promise<string> {
     });
   }
 
+  // All platforms: ffmpeg with platform-specific audio input
+  const ffmpegArgs = ["-y", ...getFfmpegRecordArgs(outFile), "-f", "wav", outFile];
   return new Promise((resolve, reject) => {
-    const child = spawn("ffmpeg", [
-      "-y", "-f", "pulse", "-i", "default",
-      "-f", "wav", "-ar", "16000", "-ac", "1", outFile,
-    ], { stdio: ["ignore", "ignore", "ignore"] });
+    const child = spawn("ffmpeg", ffmpegArgs, { stdio: ["ignore", "ignore", "ignore"] });
     const timer = setTimeout(() => child.kill("SIGINT"), durationMs);
     child.on("close", () => { clearTimeout(timer); resolve(outFile); });
     child.on("error", (e) => { clearTimeout(timer); reject(e); });
   });
-  throw new Error("No recording tool found. Install pulseaudio (parecord) or ffmpeg.");
 }
 
 async function transcribeWithWhisper(audioPath: string): Promise<string> {

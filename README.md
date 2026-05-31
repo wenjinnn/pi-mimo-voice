@@ -164,9 +164,31 @@ See [pi providers docs](https://pi.dev/docs/latest/providers) for more details.
 ## Requirements
 
 - **Node.js** ≥ 18
-- **PulseAudio** — for audio recording (`parecord`)
-- **Audio player** — one of: `paplay`, `aplay`, `ffplay`, `mpv`
 - **MiMo API key** — configured via `pi /login` or environment variable (see [API Configuration](#api-configuration))
+- **ffmpeg** — for audio recording and playback (cross-platform)
+
+### Platform-Specific Audio Tools
+
+| Platform | Recording | Playback (priority order) |
+|----------|-----------|--------------------------|
+| **Linux** | `parecord` (PulseAudio) → ffmpeg | `paplay` → `aplay` → `ffplay` → `mpv` |
+| **macOS** | ffmpeg + avfoundation | `afplay` (built-in) → `ffplay` → `mpv` |
+| **Windows** | ffmpeg + dshow | `ffplay` → `mpv` |
+
+**Linux:** PulseAudio is recommended (`parecord`/`paplay`). ALSA (`aplay`) also works for playback.
+
+**macOS:** No extra tools needed — `afplay` is built-in, ffmpeg handles recording via avfoundation.
+
+**Windows:** Install [ffmpeg](https://ffmpeg.org/download.html) and ensure it's in PATH. Default recording device is `audio=麦克风`, override with `MIC_DEVICE` env var.
+
+> ⚠️ **Cross-platform note:** macOS and Windows support is based on ffmpeg's platform-specific audio backends (avfoundation/dshow) but has **not been fully tested on real hardware**. Linux is the primary tested platform. If you encounter issues on macOS or Windows, please [open an issue](https://github.com/wenjinnn/pi-mimo-voice/issues) — feedback and contributions are very welcome!
+
+### Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `MIC_DEVICE` | Override audio recording device (all platforms) |
+| `WHISPER_MODEL` | Path to whisper.cpp model file |
 
 ### npm Dependencies
 
@@ -193,7 +215,7 @@ Text → MiMo TTS API → WAV audio → paplay/aplay/ffplay/mpv
 ### STT Flow
 
 ```
-Microphone → parecord → WAV file → whisper.cpp or MiMo API → Text
+Microphone → parecord/ffmpeg → WAV file → whisper.cpp or MiMo API → Text
 ```
 
 ### Live Mode Flow
@@ -205,6 +227,16 @@ User speaks
 LLM responds → Auto-speak reads response
 Auto-start next recording
 ```
+
+## Feedback & Contributing
+
+This project is actively maintained. If you have questions, bug reports, or feature requests:
+
+- 🐛 [Open an issue](https://github.com/wenjinnn/pi-mimo-voice/issues)
+- 🔀 [Submit a pull request](https://github.com/wenjinnn/pi-mimo-voice/pulls)
+- 💬 Share your experience and suggestions
+
+Contributions of any kind are welcome!
 
 ## License
 
