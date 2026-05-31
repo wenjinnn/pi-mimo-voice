@@ -5,6 +5,14 @@
   "keywords": ["pi-package"],
   "license": "MIT",
   "author": "wenjin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wenjinnn/pi-mimo-voice.git"
+  },
+  "homepage": "https://github.com/wenjinnn/pi-mimo-voice#readme",
+  "bugs": {
+    "url": "https://github.com/wenjinnn/pi-mimo-voice/issues"
+  },
   "pi": {
     "extensions": ["./index.ts"]
   },

@@ -2,6 +2,9 @@
 
 Voice input (STT) and output (TTS) for [pi](https://github.com/earendil-works/pi-coding-agent) powered by Xiaomi MiMo V2.5 API.
 
+[![npm version](https://img.shields.io/npm/v/pi-mimo-voice)](https://www.npmjs.com/package/pi-mimo-voice)
+[![GitHub](https://img.shields.io/github/license/wenjinnn/pi-mimo-voice)](https://github.com/wenjinnn/pi-mimo-voice)
+
 ## Features
 
 - 🎤 **Speech-to-Text (STT)** — Record audio from microphone and transcribe

@@ -2,6 +2,9 @@
 
 为 [pi](https://github.com/earendil-works/pi-coding-agent) 提供语音输入 (STT) 和输出 (TTS)，由小米 MiMo V2.5 API 驱动。
 
+[![npm version](https://img.shields.io/npm/v/pi-mimo-voice)](https://www.npmjs.com/package/pi-mimo-voice)
+[![GitHub](https://img.shields.io/github/license/wenjinnn/pi-mimo-voice)](https://github.com/wenjinnn/pi-mimo-voice)
+
 ## 功能特性
 
 - 🎤 **语音转文字 (STT)** — 录音并转写为文字
