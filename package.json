@@ -1,6 +1,6 @@
 {
   "name": "@wenjinnn/pi-mimo-voice",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Voice input and output for pi powered by Xiaomi MiMo V2.5 TTS",
   "keywords": [
     "pi-package"
@@ -19,11 +19,8 @@
     "extensions": [
       "./index.ts"
     ],
-    "preview": "https://raw.githubusercontent.com/wenjinnn/pi-mimo-voice/main/assets/screenshot.png",
-    "media": [
-      "https://raw.githubusercontent.com/wenjinnn/pi-mimo-voice/main/assets/screenshot.png",
-      "https://raw.githubusercontent.com/wenjinnn/pi-mimo-voice/main/assets/video.mp4"
-    ]
+    "image": "https://raw.githubusercontent.com/wenjinnn/pi-mimo-voice/main/assets/screenshot.png",
+    "video": "https://raw.githubusercontent.com/wenjinnn/pi-mimo-voice/main/assets/video.mp4"
   },
   "peerDependencies": {
     "@earendil-works/pi-coding-agent": "*",
