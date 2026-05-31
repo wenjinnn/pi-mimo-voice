@@ -7,6 +7,10 @@
 [![npm version](https://img.shields.io/npm/v/pi-mimo-voice)](https://www.npmjs.com/package/pi-mimo-voice)
 [![GitHub](https://img.shields.io/github/license/wenjinnn/pi-mimo-voice)](https://github.com/wenjinnn/pi-mimo-voice)
 
+![pi-mimo-voice 截图](https://raw.githubusercontent.com/wenjinnn/pi-mimo-voice/main/assets/screenshot.png)
+
+[📹 观看演示视频](https://raw.githubusercontent.com/wenjinnn/pi-mimo-voice/main/assets/video.mp4)
+
 ## 功能特性
 
 - 🎤 **语音转文字 (STT)** — 录音并转写为文字

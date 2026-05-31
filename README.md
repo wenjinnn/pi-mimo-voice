@@ -7,6 +7,10 @@ Voice input (STT) and output (TTS) for [pi](https://github.com/earendil-works/pi
 [![npm version](https://img.shields.io/npm/v/pi-mimo-voice)](https://www.npmjs.com/package/pi-mimo-voice)
 [![GitHub](https://img.shields.io/github/license/wenjinnn/pi-mimo-voice)](https://github.com/wenjinnn/pi-mimo-voice)
 
+![pi-mimo-voice screenshot](https://raw.githubusercontent.com/wenjinnn/pi-mimo-voice/main/assets/screenshot.png)
+
+[📹 Watch Demo Video](https://raw.githubusercontent.com/wenjinnn/pi-mimo-voice/main/assets/video.mp4)
+
 ## Features
 
 - 🎤 **Speech-to-Text (STT)** — Record audio from microphone and transcribe

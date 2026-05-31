@@ -18,6 +18,11 @@
   "pi": {
     "extensions": [
       "./index.ts"
+    ],
+    "preview": "https://raw.githubusercontent.com/wenjinnn/pi-mimo-voice/main/assets/screenshot.png",
+    "media": [
+      "https://raw.githubusercontent.com/wenjinnn/pi-mimo-voice/main/assets/screenshot.png",
+      "https://raw.githubusercontent.com/wenjinnn/pi-mimo-voice/main/assets/video.mp4"
     ]
   },
   "peerDependencies": {
