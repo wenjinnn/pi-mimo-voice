@@ -7,9 +7,9 @@
 [![npm version](https://img.shields.io/npm/v/pi-mimo-voice)](https://www.npmjs.com/package/pi-mimo-voice)
 [![GitHub](https://img.shields.io/github/license/wenjinnn/pi-mimo-voice)](https://github.com/wenjinnn/pi-mimo-voice)
 
-![pi-mimo-voice 截图](https://raw.githubusercontent.com/wenjinnn/pi-mimo-voice/main/assets/screenshot.png)
+![pi-mimo-voice 截图](https://github.com/wenjinnn/pi-mimo-voice/releases/download/v1.0.5/screenshot.png)
 
-[📹 观看演示视频](https://raw.githubusercontent.com/wenjinnn/pi-mimo-voice/main/assets/video.mp4)
+[📹 观看演示视频](https://github.com/wenjinnn/pi-mimo-voice/releases/download/v1.0.5/video.mp4)
 
 ## 功能特性
 
