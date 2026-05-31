@@ -1,20 +1,24 @@
 {
-  "name": "pi-mimo-voice",
+  "name": "@wenjinnn/pi-mimo-voice",
   "version": "1.0.0",
   "description": "Voice input and output for pi powered by Xiaomi MiMo V2.5 TTS",
-  "keywords": ["pi-package"],
+  "keywords": [
+    "pi-package"
+  ],
   "license": "MIT",
   "author": "wenjin",
   "repository": {
     "type": "git",
-    "url": "https://github.com/wenjinnn/pi-mimo-voice.git"
+    "url": "git+https://github.com/wenjinnn/pi-mimo-voice.git"
   },
   "homepage": "https://github.com/wenjinnn/pi-mimo-voice#readme",
   "bugs": {
     "url": "https://github.com/wenjinnn/pi-mimo-voice/issues"
   },
   "pi": {
-    "extensions": ["./index.ts"]
+    "extensions": [
+      "./index.ts"
+    ]
   },
   "peerDependencies": {
     "@earendil-works/pi-coding-agent": "*",

@@ -27,8 +27,9 @@ npx pi-package install pi-mimo-voice
 ## 快速开始
 
 ```bash
-# 1. 设置 API 密钥（或通过 pi /login 配置）
-export MIMO_API_KEY="your-key"
+# 1. 设置 API 密钥（通过环境变量或 pi /login）
+export XIAOMI_TOKEN_PLAN_CN_API_KEY="your-key"  # 中国区域
+# 或: export XIAOMI_API_KEY="your-key"          # 全球
 
 # 2. 重启 pi 或 /reload
 
@@ -121,19 +122,40 @@ export MIMO_API_KEY="your-key"
 
 扩展会根据 pi `auth.json` 中的 provider 自动检测 API 区域：
 
-| Provider | 区域 |
-|----------|------|
-| `xiaomi-token-plan-cn` | 中国 |
-| `xiaomi-token-plan-ams` | 阿姆斯特丹 |
-| `xiaomi-token-plan-sgp` | 新加坡 |
-| `xiaomi` | 全球 |
+| Provider | auth.json 密钥 | 环境变量 | 区域 |
+|----------|---------------|----------|------|
+| Xiaomi MiMo | `xiaomi` | `XIAOMI_API_KEY` | 全球 |
+| Token Plan CN | `xiaomi-token-plan-cn` | `XIAOMI_TOKEN_PLAN_CN_API_KEY` | 中国 |
+| Token Plan AMS | `xiaomi-token-plan-ams` | `XIAOMI_TOKEN_PLAN_AMS_API_KEY` | 阿姆斯特丹 |
+| Token Plan SGP | `xiaomi-token-plan-sgp` | `XIAOMI_TOKEN_PLAN_SGP_API_KEY` | 新加坡 |
+
+### 配置方式
+
+**方式 1：环境变量**
+```bash
+export XIAOMI_TOKEN_PLAN_CN_API_KEY="your-key"
+```
+
+**方式 2：pi /login**
+```
+/login  → 选择 provider → 输入 API 密钥
+```
+
+**方式 3：auth.json**
+```json
+{
+  "xiaomi-token-plan-cn": { "type": "api_key", "key": "your-key" }
+}
+```
+
+详见 [pi providers 文档](https://pi.dev/docs/latest/providers)。
 
 ## 系统要求
 
 - **Node.js** ≥ 18
 - **PulseAudio** — 用于录音（`parecord`）
 - **音频播放器** — 任一：`paplay`、`aplay`、`ffplay`、`mpv`
-- **MiMo API 密钥** — 通过 `pi /login` 或 `MIMO_API_KEY` 环境变量配置
+- **MiMo API 密钥** — 通过 `pi /login` 或环境变量配置（见 [API 配置](#api-配置)）
 
 ### npm 依赖
 

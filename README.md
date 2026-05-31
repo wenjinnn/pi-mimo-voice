@@ -27,8 +27,9 @@ npx pi-package install pi-mimo-voice
 ## Quick Start
 
 ```bash
-# 1. Set API key (or configure via pi /login)
-export MIMO_API_KEY="your-key"
+# 1. Set API key (via environment variable or pi /login)
+export XIAOMI_TOKEN_PLAN_CN_API_KEY="your-key"  # China region
+# Or: export XIAOMI_API_KEY="your-key"          # Global
 
 # 2. Restart pi or /reload
 
@@ -121,19 +122,40 @@ Record and transcribe speech. Parameters:
 
 The extension auto-detects the API region from your pi `auth.json` provider:
 
-| Provider | Region |
-|----------|--------|
-| `xiaomi-token-plan-cn` | China |
-| `xiaomi-token-plan-ams` | Amsterdam |
-| `xiaomi-token-plan-sgp` | Singapore |
-| `xiaomi` | Global |
+| Provider | auth.json Key | Environment Variable | Region |
+|----------|---------------|---------------------|--------|
+| Xiaomi MiMo | `xiaomi` | `XIAOMI_API_KEY` | Global |
+| Token Plan CN | `xiaomi-token-plan-cn` | `XIAOMI_TOKEN_PLAN_CN_API_KEY` | China |
+| Token Plan AMS | `xiaomi-token-plan-ams` | `XIAOMI_TOKEN_PLAN_AMS_API_KEY` | Amsterdam |
+| Token Plan SGP | `xiaomi-token-plan-sgp` | `XIAOMI_TOKEN_PLAN_SGP_API_KEY` | Singapore |
+
+### Setup Options
+
+**Option 1: Environment Variable**
+```bash
+export XIAOMI_TOKEN_PLAN_CN_API_KEY="your-key"
+```
+
+**Option 2: pi /login**
+```
+/login  → Select provider → Enter API key
+```
+
+**Option 3: auth.json**
+```json
+{
+  "xiaomi-token-plan-cn": { "type": "api_key", "key": "your-key" }
+}
+```
+
+See [pi providers docs](https://pi.dev/docs/latest/providers) for more details.
 
 ## Requirements
 
 - **Node.js** ≥ 18
 - **PulseAudio** — for audio recording (`parecord`)
 - **Audio player** — one of: `paplay`, `aplay`, `ffplay`, `mpv`
-- **MiMo API key** — configured via `pi /login` or `MIMO_API_KEY` env var
+- **MiMo API key** — configured via `pi /login` or environment variable (see [API Configuration](#api-configuration))
 
 ### npm Dependencies
 
