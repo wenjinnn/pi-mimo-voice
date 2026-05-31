@@ -9,6 +9,8 @@ Voice input (STT) and output (TTS) for [pi](https://github.com/earendil-works/pi
 
 ![pi-mimo-voice screenshot](https://github.com/wenjinnn/pi-mimo-voice/releases/download/v1.0.5/screenshot.png)
 
+> 🔊 **Please turn on sound for the demo below**
+
 https://github.com/user-attachments/assets/9a9f9984-9476-4c4e-bbeb-ae088a7d875c
 
 ## Features

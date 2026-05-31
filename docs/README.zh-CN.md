@@ -9,6 +9,8 @@
 
 ![pi-mimo-voice 截图](https://github.com/wenjinnn/pi-mimo-voice/releases/download/v1.0.5/screenshot.png)
 
+> 🔊 **请打开声音观看下方演示**
+
 https://github.com/user-attachments/assets/9a9f9984-9476-4c4e-bbeb-ae088a7d875c
 
 ## 功能特性

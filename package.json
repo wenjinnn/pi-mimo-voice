@@ -1,6 +1,6 @@
 {
   "name": "@wenjinnn/pi-mimo-voice",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "readme": "README.md",
   "description": "Voice input and output for pi powered by Xiaomi MiMo V2.5 TTS",
   "keywords": [
