@@ -491,6 +491,7 @@ export default function (pi: ExtensionAPI) {
 
   // ── Live mode ────────────────────────────────────────────────────────
   let _liveMode = false;
+  let _liveModeGeneration = 0; // Incremented on each toggle to detect stale callbacks
 
   async function startLiveListen(ctx: ExtensionContext) {
     if (!_liveMode) return;
@@ -542,6 +543,7 @@ export default function (pi: ExtensionAPI) {
       // /live — toggle on/off
       if (_liveMode) {
         _liveMode = false;
+        _liveModeGeneration++; // Invalidate any pending callbacks
         state.autoSpeak = false;
         if (_recordingProc) stopRecording(true);
         ctx.ui.notify("Live mode: OFF", "info");
@@ -549,6 +551,7 @@ export default function (pi: ExtensionAPI) {
       }
 
       _liveMode = true;
+      _liveModeGeneration++;
       state.autoSpeak = true;
       ctx.ui.notify("Live mode: ON (auto-speak enabled)", "info");
       await startLiveListen(ctx);
@@ -556,8 +559,16 @@ export default function (pi: ExtensionAPI) {
   });
 
   // ── Auto-speak: read assistant replies ──────────────────────────────────
+  // Guard to prevent re-entrant auto-speak (TTS output triggering another TTS)
+  let _autoSpeakInProgress = false;
+  // Flag: set when mimo_tts tool plays audio, so message_end skips auto-speak for that turn
+  let _ttsJustPlayed = false;
+
   pi.on("message_end", async (event, ctx) => {
     if (!state.autoSpeak || event.message.role !== "assistant") return;
+    if (_autoSpeakInProgress) return; // Skip messages produced by TTS itself
+    if (_ttsJustPlayed) { _ttsJustPlayed = false; return; } // TTS tool already played audio
+
     const content = event.message.content;
     // Content can be a string or an array of content blocks
     let text: string = "";
@@ -568,19 +579,31 @@ export default function (pi: ExtensionAPI) {
     }
     if (!text.trim()) return;
 
+    // Skip TTS tool output messages to avoid echo loop
+    if (text.startsWith("🔊 TTS:")) return;
+
     const maxChars = 2000;
     const ttsText = text.length > maxChars ? text.slice(0, maxChars) + "…" : text;
 
+    // Capture generation before TTS to detect if live mode was toggled during playback
+    const generationBeforeTTS = _liveModeGeneration;
+
     try {
+      _autoSpeakInProgress = true;
       const audioBuffer = await callMimoTTS(ttsText);
       const audioFile = await tmpFile(".wav");
       await writeFile(audioFile, audioBuffer);
       await playAudio(audioFile);
       await unlink(audioFile).catch(() => {});
-      // If live mode is active, start listening for the next turn
-      if (_liveMode) await startLiveListen(ctx);
     } catch (e) {
       ctx.ui.notify(`Auto-speak failed: ${e instanceof Error ? e.message : e}`, "error");
+    } finally {
+      _autoSpeakInProgress = false;
+    }
+
+    // Only restart live listening if live mode is STILL active and wasn't toggled during TTS
+    if (_liveMode && _liveModeGeneration === generationBeforeTTS) {
+      await startLiveListen(ctx);
     }
   });
 
@@ -616,6 +639,7 @@ export default function (pi: ExtensionAPI) {
         await writeFile(audioFile, audioBuffer);
         await playAudio(audioFile);
         await unlink(audioFile).catch(() => {});
+        _ttsJustPlayed = true; // Prevent auto-speak from reading the response again
         return {
           content: [{ type: "text", text: `🔊 TTS: ${params.text}` }],
           details: { chars: params.text.length, voice: state.voice, style: params.style },
@@ -685,6 +709,7 @@ export default function (pi: ExtensionAPI) {
         await writeFile(audioFile, audioBuffer);
         await playAudio(audioFile);
         await unlink(audioFile).catch(() => {});
+        _ttsJustPlayed = true; // Prevent auto-speak duplicate
         pi.sendMessage({
           customType: "mimo-voice",
           content: `🔊 [TTS] ${args.trim()}`,
@@ -801,7 +826,11 @@ export default function (pi: ExtensionAPI) {
   });
 
   // cleanup live mode on shutdown
-  pi.on("session_shutdown", () => { _liveMode = false; });
+  pi.on("session_shutdown", () => {
+    _liveMode = false;
+    _liveModeGeneration++;
+    _autoSpeakInProgress = false;
+  });
 
   pi.registerCommand("voice-config", {
     description: "Configure voice settings (voice, model, engine, region)",
