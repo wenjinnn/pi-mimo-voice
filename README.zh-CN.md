@@ -1,5 +1,7 @@
 # pi-mimo-voice
 
+> 🇬🇳 [English](README.md)
+
 为 [pi](https://github.com/earendil-works/pi-coding-agent) 提供语音输入 (STT) 和输出 (TTS)，由小米 MiMo V2.5 API 驱动。
 
 [![npm version](https://img.shields.io/npm/v/pi-mimo-voice)](https://www.npmjs.com/package/pi-mimo-voice)

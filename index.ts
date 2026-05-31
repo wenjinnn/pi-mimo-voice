@@ -151,6 +151,8 @@ let _recordingFile: string | null = null;
 let _recordingTimer: ReturnType<typeof setTimeout> | null = null;
 let _recordingStartedAt: number = 0;
 let _recordingCancelled: boolean = false;
+// Track current audio player process for cancellation
+let _currentAudioPlayer: ChildProcess | null = null;
 
 function stopRecording(cancel: boolean = false): void {
   if (cancel) _recordingCancelled = true;
@@ -365,12 +367,27 @@ async function playAudio(filePath: string): Promise<void> {
     if (cmdExists(p.cmd)) {
       return new Promise((resolve, reject) => {
         const child = spawn(p.cmd, p.args, { stdio: "ignore" });
-        child.on("close", (code) => (code === 0 ? resolve() : reject(new Error(`${p.cmd} exited ${code}`))));
-        child.on("error", reject);
+        _currentAudioPlayer = child;
+        child.on("close", (code) => {
+          _currentAudioPlayer = null;
+          code === 0 ? resolve() : reject(new Error(`${p.cmd} exited ${code}`));
+        });
+        child.on("error", (e) => {
+          _currentAudioPlayer = null;
+          reject(e);
+        });
       });
     }
   }
   throw new Error("No audio player found. Install paplay, aplay, ffplay, or mpv.");
+}
+
+/** Stop currently playing audio */
+function stopAudio(): void {
+  if (_currentAudioPlayer) {
+    _currentAudioPlayer.kill("SIGTERM");
+    _currentAudioPlayer = null;
+  }
 }
 
 // ─── STT ────────────────────────────────────────────────────────────────────
@@ -545,6 +562,8 @@ export default function (pi: ExtensionAPI) {
         _liveMode = false;
         _liveModeGeneration++; // Invalidate any pending callbacks
         state.autoSpeak = false;
+        _autoSpeakInProgress = false;
+        stopAudio(); // Stop any playing TTS
         if (_recordingProc) stopRecording(true);
         ctx.ui.notify("Live mode: OFF", "info");
         return;
@@ -553,6 +572,7 @@ export default function (pi: ExtensionAPI) {
       _liveMode = true;
       _liveModeGeneration++;
       state.autoSpeak = true;
+      _ttsJustPlayed = false; // Reset to ensure first message plays
       ctx.ui.notify("Live mode: ON (auto-speak enabled)", "info");
       await startLiveListen(ctx);
     },
@@ -818,9 +838,31 @@ export default function (pi: ExtensionAPI) {
   pi.on("session_shutdown", () => { stopRecording(); });
 
   pi.registerCommand("auto-speak", {
-    description: "Toggle auto-speak (read all replies aloud)",
-    handler: async (_args, ctx) => {
-      state.autoSpeak = !state.autoSpeak;
+    description: "Toggle auto-speak (read all replies aloud). Use /auto-speak on|off for explicit control.",
+    handler: async (args, ctx) => {
+      const argStr = args?.trim()?.toLowerCase() || "";
+      
+      if (argStr === "on" || argStr === "true" || argStr === "1") {
+        state.autoSpeak = true;
+      } else if (argStr === "off" || argStr === "false" || argStr === "0") {
+        state.autoSpeak = false;
+        // Stop any currently playing TTS audio
+        stopAudio();
+        _autoSpeakInProgress = false;
+      } else {
+        // Toggle
+        state.autoSpeak = !state.autoSpeak;
+        if (!state.autoSpeak) {
+          stopAudio();
+          _autoSpeakInProgress = false;
+        }
+      }
+      
+      // Reset _ttsJustPlayed when enabling auto-speak to prevent first-message skip
+      if (state.autoSpeak) {
+        _ttsJustPlayed = false;
+      }
+      
       ctx.ui.notify(`Auto-speak: ${state.autoSpeak ? "ON" : "OFF"}`, "info");
     },
   });
